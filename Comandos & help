@@ -1,0 +1,162 @@
+import discord
+from discord.ext import commands
+import random
+
+intents = discord.Intents.default()
+intents.message_content = True
+
+bot = commands.Bot(command_prefix='$', intents=intents)
+
+@bot.event
+async def on_ready():
+    print(f'We have logged in as {bot.user}')
+
+@bot.command()
+async def hello(ctx):
+    await ctx.send(f'Hola, soy un bot {bot.user}!')
+
+@bot.command()
+async def heh(ctx, count_heh = 5):
+    await ctx.send("xd" * count_heh)
+    
+@bot.command()
+async def repit(ctx, wordrep, timecount):
+    timecount = int(timecount)
+    Totalword = " "
+    for i in range(timecount):
+        Totalword += wordrep + " "
+    await ctx.send(Totalword) 
+    
+@bot.command()
+async def suma(ctx, num1: int, num2: int):
+    await ctx.send(num1 + num2)   
+    
+@bot.command()
+async def tirar(ctx, sides: int):
+    if sides < 6:
+        await ctx.send("Por favor, ingresa un número de lados válido (mayor o igual a 6).")
+        return  
+    resultado = random.randint(1, sides)
+    await ctx.send(resultado)  
+       
+     
+@bot.command()
+async def conversor(ctx, valor: float,  unit_1: str, unit_2: str):
+    
+    conversions = {
+        # Distancias
+        "km_millas": 0.621371,
+        "millas_km": 1.60934,
+        "m_ft": 3.28084,
+        "ft_m": 0.3048,
+        "cm_inch": 0.393701,
+        "inch_cm": 2.54,
+
+        # Pesos
+        "kg_lbr": 2.20462,
+        "lbr_kg": 0.453592,
+        "gr_oz": 0.035274,
+        "oz_gr": 28.3495,
+
+        # Volúmenes
+        "lt_gal": 0.264172,
+        "gal_lt": 3.78541,
+        "ml_tz": 0.00422675,
+        "tz_ml": 236.588,
+        "ml_lt": 0.001,
+        "lt_ml": 1000,
+    }
+
+    # Temperturas
+    if unit_1 == "c" and unit_2 == "f":
+        result = (valor * 9 / 5) + 32
+        await ctx.send(f"{valor} °C son {result} °F.")
+    elif unit_1 == "f" and unit_2 == "c":
+        result = (valor - 32) * 5 / 9
+        await ctx.send(f"{valor} °F son {result} °C.")
+    elif unit_1 == "c" and unit_2 == "k":
+        result = valor + 273.15
+        await ctx.send(f"{valor} °C son {result} K.")
+    elif unit_1 == "k" and unit_2 == "c":
+        result = valor - 273.15
+        await ctx.send(f"{valor} K son {result} °C.")
+    elif unit_1 == "f" and unit_2 == "k":
+        result = (valor - 32) * 5 / 9 + 273.15
+        await ctx.send(f"{valor} °F son {result} K.")
+    elif unit_1 == "k" and unit_2 == "f":
+        result = (valor - 273.15) * 9 / 5 + 32
+        await ctx.send(f"{valor} K son {result} °F.")
+    else:
+        
+        conversion_key = f"{unit_1}_{unit_2}"
+        if conversion_key in conversions:
+            factor = conversions[conversion_key]
+            result = valor * factor
+            await ctx.send(f"{valor} {unit_1} son {result} {unit_2}.")
+        else:
+            await ctx.send(f"No se puede convertir de {unit_1} a {unit_2}. Unidades no compatibles.")
+            
+@bot.command()
+async def help(ctx):
+    help_message = """
+    Comandos disponibles:
+
+    $hello 
+    Responde con un saludo.
+    
+    $heh 
+    Repite "xd" el número de veces que le indiques, de lo contrario el número de repetición es predefinid.
+
+    $repit <mensaje> <N° veces>
+    El bot repetirá el mensaje que pongas después del comando el número de veces que le indiques.
+
+    $suma <primer número> <seguno número>
+    Suma dos números y muestra el resultado.
+
+    $tirar <N° lados del dado> 
+    Este comando permite tirar un dado con un número especifico de caras, las cuales deben ser mayores o iguales a 6.
+    El bot arrojará un número aleatorio.
+
+    $convert <valor> <unidad_origen> <unidad_destino> 
+    Convierte entre diferentes unidades de medida.  
+    Unidades disponibles para conversión:
+
+    Distancias:  
+    - km a millas            (km_millas)
+    - millas a km            (millas_km)
+    - metros a pies          (m_ft)
+    - pies a metros          (ft_m)
+    - centimetros a pulgadas (cm_inch)
+    - pulgadas a centimetros (inch_cm)
+
+    Pesos:  
+    - kilogramos a libras  (kg_lbr)
+    - libras a kilogramos  (kg_lbr)
+    - gramos a onzas       (gr_oz) 
+    - onzas a gramos       (oz_gr) 
+
+    Volúmenes: 
+    - litros a galones      (lt_gal)
+    - galones a litros      (gal_lt)
+    - mililitros a tazas    (ml_tz)
+    - tazas a mililitros    (tz_ml) 
+    - mililitros a litros   (ml_lt)
+    - litros a mililitros   (lt_ml)
+
+    Temperaturas:  
+    - Celsius a Fahrenheit  (c_f)
+    - Fahrenheit a Celsius  (f_c)
+    - Celsius a Kelvin      (c_k)
+    - Kelvin a Celsius      (k_c)
+    - Fahrenheit a Kelvin   (f_k)
+    - Kelvin a Fahrenheit   (k_f)
+
+    Uso: 
+    Para usar un comando, simplemente escribe el comando seguido de los parámetros correspondientes. Ejemplo:  
+    $convert 100 c f para convertir 100 °C a °F.
+
+    Si necesitas más ayuda, no dudes en preguntar.
+    """
+    await ctx.send(help_message)
+        
+bot.run("TOKEN")
